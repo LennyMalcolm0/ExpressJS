@@ -2,8 +2,14 @@ const Player = require("../models/playersModel");
 const mongoose = require("mongoose");
 
 const getPlayers = async (req, res) => {
+    const limit = Number(req.query.limit);
+
     try {
-        const players = await Player.find({}).sort({ createdAt: -1 });
+        const players = await Player
+            .find({})
+            .sort({ goals: -1, age: -1 })
+            .limit(limit !== NaN ? limit : -1)
+            .lean();
         res.status(200).send(players);
     } catch (error) {
         res.status(404).send(error);
@@ -13,11 +19,7 @@ const getPlayers = async (req, res) => {
 const getPlayerById = async (req, res) => {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
-    }
-
-    const player = await Player.findById(id);
+    const player = await Player.findById(id).lean();
 
     if (!player) {
         return res.status(404).send({ error: "Player not found" });
@@ -31,7 +33,8 @@ const createPlayer = async (req, res) => {
 
     try {
         const player = await Player.create(
-            { name, club, age, goals, assists, competition }
+            { name, club, age, goals, assists, competition },
+            { lean: true }
         );
         res.status(200).send(player);
     } catch (error) {
@@ -42,29 +45,22 @@ const createPlayer = async (req, res) => {
 const updatePlayer = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
-    }
  
     const player = await Player.findByIdAndUpdate(
         id, 
-        { ...updatedData }
-    );
+        { ...updatedData },
+        { new: true, lean: true }
+    ).select("name club goals competition");
     
     if (!player) {
         return res.status(404).send({ error: "Player not found" });
     }
 
-    res.status(200).send({ ...player._doc, ...updatedData });
+    res.status(200).send(player);
 }
 
 const deletePlayer = async (req, res) => {
     const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
-    }
 
     try {
         // await Player.findByIdAndDelete(id);
@@ -75,10 +71,38 @@ const deletePlayer = async (req, res) => {
     }
 }
 
+const countPlayers = async (req, res) => {
+    const comp = req.body.comp;
+
+    try {
+        let query = {};
+        if (comp) {
+            query = { competition: { $elemMatch: { $eq: comp } } };
+        }
+
+        const totalPlayers = await Player.countDocuments(query);
+        res.status(200).send({ total: totalPlayers });
+    } catch (error) {
+        res.status(404).send(error);
+    }
+}
+
+function checkValidId(req, res, next) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(401).send({ error: "Not a valid id" });
+    }
+    
+    next();
+}
+
 module.exports = {
     getPlayers,
     getPlayerById,
     createPlayer,
     updatePlayer,
-    deletePlayer
+    deletePlayer,
+    countPlayers,
+    checkValidId
 }

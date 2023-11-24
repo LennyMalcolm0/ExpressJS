@@ -8,30 +8,33 @@ const competitionSchema = new Schema({
 });
 
 const playerSchema = new Schema({
-    name: {
-        type: String,
-        required: true
+    name: { 
+        type: String, 
+        required: true,
+        minLength: 2
     },
-    club: {
-        type: String,
-        required: true
+    club: { 
+        type: String, 
+        required: true,
+        // lowercase: true,
+        // immutable: true
     },
-    age: {
-        type: Number,
-        required: true
+    age: { 
+        type: Number, 
+        required: true,
+        min: 16,
+        max: 45,
+        validator: {
+            validator: v => v % 2 === 0,
+            message: props => `${props.value} is not an even number`
+        }
     },
-    goals: {
-        type: Number,
-        required: true
+    goals: { 
+        type: Number, 
+        required: true 
     },
-    assists: {
-        type: Number,
-        required: false
-    },
-    competition: {
-        type: [String],
-        required: false
-    },
+    assists: Number,
+    competition: [String],
 }, { timestamps: true })
 
 module.exports = mongoose.model("Player", playerSchema);

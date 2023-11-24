@@ -5,27 +5,22 @@ const {
     getPlayerById,
     createPlayer,
     updatePlayer,
-    deletePlayer
+    deletePlayer,
+    countPlayers,
+    checkValidId
 } = require("../controllers/playersControllers");
-
-const bigSix = {
-    "ManchesterCity": ["Rodri", "Kevin De Bruyne", "Phil Foden", "Ruben Dias", "Ederson"],
-    "Liverpool": ["Mohamed Salah", "Sadio Mane", "Virgil van Dijk", "Trent Alexander-Arnold", "Alisson"],
-    "Arsenal": ["Bukayo Saka", "Pierre-Emerick Aubameyang", "Kieran Tierney", "Thomas Partey", "Emile Smith Rowe"],
-    "Chelsea": ["N'Golo Kante", "Mason Mount", "Romelu Lukaku", "Edouard Mendy", "Reece James"],
-    "ManchesterUnited": ["Bruno Fernandes", "Cristiano Ronaldo", "Paul Pogba", "Luke Shaw", "David de Gea"],
-    "TottenhamHotspur": ["Harry Kane", "Son Heung-min", "Pierre-Emile Hojbjerg", "Hugo Lloris", "Tanguy Ndombele"]
-};
 
 router.get("/players", getPlayers);
 
-router.get("/player/:id", getPlayerById);
+router.get("/player/:id", checkValidId, getPlayerById);
 
 router.post("/player", createPlayer);
 
-router.delete("/player/:id", deletePlayer);
+router.delete("/player/:id", checkValidId, deletePlayer);
 
-router.patch("/player/:id", updatePlayer)
+router.patch("/player/:id", checkValidId, updatePlayer);
+
+router.get("/players/count", countPlayers);
 
 function auth(req, res, next) {
     const limit = req.query.limit;
