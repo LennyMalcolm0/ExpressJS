@@ -3,7 +3,9 @@ const router = express.Router();
 const {
     getPlayers,
     getPlayerById,
-    createPlayer
+    createPlayer,
+    updatePlayer,
+    deletePlayer
 } = require("../controllers/playersControllers");
 
 const bigSix = {
@@ -21,8 +23,9 @@ router.get("/player/:id", getPlayerById);
 
 router.post("/player", createPlayer);
 
-// router.patch("/player/:id", (req, res) => {
-// })
+router.delete("/player/:id", deletePlayer);
+
+router.patch("/player/:id", updatePlayer)
 
 function auth(req, res, next) {
     const limit = req.query.limit;

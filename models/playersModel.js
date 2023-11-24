@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema
 
 const competitionSchema = new Schema({
-    bestie: String,
-    solid: Boolean
+    name: String,
+    prizeMoney: Number
 });
 
 const playerSchema = new Schema({
