@@ -24,10 +24,10 @@ const playerSchema = new Schema({
         required: true,
         min: 16,
         max: 45,
-        validator: {
-            validator: v => v % 2 === 0,
-            message: props => `${props.value} is not an even number`
-        }
+        // validator: {
+        //     validator: v => v % 2 === 0,
+        //     message: props => `${props.value} is not an even number`
+        // }
     },
     goals: { 
         type: Number, 
@@ -35,9 +35,19 @@ const playerSchema = new Schema({
     },
     assists: Number,
     competition: [String],
+    favplayer: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Player"
+    }
 }, { timestamps: true })
 
-module.exports = mongoose.model("Player", playerSchema);
+// playerSchema.methods.SayHello = function() {
+
+// }
+
+const Player = mongoose.model("Player", playerSchema);
+
+module.exports = { Player, playerSchema }
 
 // {
 // 	"name": "Kevin De Bruyne",

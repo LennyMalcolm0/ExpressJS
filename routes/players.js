@@ -7,6 +7,8 @@ const {
     updatePlayer,
     deletePlayer,
     countPlayers,
+    setFavPlayer,
+    getFavPlayer,
     checkValidId
 } = require("../controllers/playersControllers");
 
@@ -22,14 +24,8 @@ router.patch("/player/:id", checkValidId, updatePlayer);
 
 router.get("/players/count", countPlayers);
 
-function auth(req, res, next) {
-    const limit = req.query.limit;
-    const { club } = req.params;
+router.post("/player/:id/fav-player", checkValidId, setFavPlayer);
 
-    if (limit) {
-        res.status(200).send(bigSix[club].slice(0, Number(limit)));
-    }
-    next();
-}
+router.get("/player/:id/fav-player", checkValidId, getFavPlayer);
 
 module.exports = router

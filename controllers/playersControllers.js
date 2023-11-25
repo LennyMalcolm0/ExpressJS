@@ -1,4 +1,4 @@
-const Player = require("../models/playersModel");
+const { Player, playerSchema } = require("../models/playersModel");
 const mongoose = require("mongoose");
 
 const getPlayers = async (req, res) => {
@@ -87,6 +87,47 @@ const countPlayers = async (req, res) => {
     }
 }
 
+const setFavPlayer = async (req, res) => {
+    const { id } = req.params;
+    const { playerId } = req.body;
+
+    const player = await Player
+        .findByIdAndUpdate(
+            id, 
+            { $set: { favplayer: playerId } },
+            { new: true }
+        )
+        .populate("favplayer")
+        .select("name favPlayer")
+        .lean();
+    
+    if (!player) {
+        return res.status(404).send({ error: "Player not found" });
+    }
+
+    res.status(200).send(player);
+}
+
+const getFavPlayer = async (req, res) => {
+    const { id } = req.params;
+
+    // playerSchema.virtual('playerName').get(function() {
+    //     return this.name;
+    // });
+    
+    const player = await Player
+        .findById(id)
+        .populate("favplayer")
+        .select("name favplayer")
+        .lean();
+    
+    if (!player) {
+        return res.status(404).send({ error: "Player not found" });
+    }
+
+    res.status(200).send(player);
+}
+
 function checkValidId(req, res, next) {
     const { id } = req.params;
 
@@ -104,5 +145,7 @@ module.exports = {
     updatePlayer,
     deletePlayer,
     countPlayers,
+    setFavPlayer,
+    getFavPlayer,
     checkValidId
 }
