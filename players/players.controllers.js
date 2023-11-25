@@ -1,4 +1,4 @@
-const { Player, playerSchema } = require("../models/playersModel");
+const { Player, playerSchema } = require("./players.models");
 const mongoose = require("mongoose");
 
 const getPlayers = async (req, res) => {

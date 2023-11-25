@@ -10,7 +10,7 @@ const {
     setFavPlayer,
     getFavPlayer,
     checkValidId
-} = require("../controllers/playersControllers");
+} = require("./players.controllers");
 
 router.get("/players", getPlayers);
 
