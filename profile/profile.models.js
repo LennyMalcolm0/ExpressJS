@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
+const { imageArraySchema } = require("../config");
 
 const Schema = mongoose.Schema
 
-const imageArraySchema = new Schema({
-    url: { 
-        type: String, 
-        required: true
-    }
-});
+// const imageArraySchema = new Schema({
+//     id: { type: Schema.Types.ObjectId, auto: true },
+//     url: { 
+//         type: String, 
+//         required: true,
+//         unique: true
+//     }
+// });
 
 const profileSchema = new Schema({
     firstName: { type: String, required: true },

@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const { 
     InvalidReq,
     InvalidResp,
-    FailedReq
+    FailedReq,
+    cleanUpObject
 } = require("../config");
 
 const getProfile = async (req, res) => {
@@ -16,7 +17,7 @@ const getProfile = async (req, res) => {
             return res.status(404).send({ error: "Profile not found" });
         }
     
-        res.status(200).send(profile);
+        res.status(200).send(cleanUpObject(profile));
     } catch (error) {
         res.status(400).send(error);
     }
@@ -32,7 +33,7 @@ const createProfile = async (req, res) => {
                 { lean: true }
             );
     
-        res.status(200).send(profile);
+        res.status(200).send(cleanUpObject(profile));
     } catch (error) {
         res.status(400).send(error);
     }
@@ -61,7 +62,7 @@ const updateProfile = async (req, res) => {
             return res.status(404).send({ error: "Profile not found" });
         }
     
-        res.status(200).send(profile);
+        res.status(200).send(cleanUpObject(profile));
     } catch (error) {
         res.status(400).send(error);
     }
