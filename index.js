@@ -4,10 +4,10 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 
-const playersRoutes = require('./players/players.routes');
-const profileRoutes = require('./profile/profile.routes');
-
 app.use(express.json());
+
+const playersRoutes = require('./app/players/players.routes');
+const profileRoutes = require('./app/profile/profile.routes');
 
 app.use("/football", playersRoutes);
 app.use("/profile", profileRoutes);

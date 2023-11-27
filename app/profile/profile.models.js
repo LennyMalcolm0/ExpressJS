@@ -3,15 +3,6 @@ const { imageArraySchema } = require("../config");
 
 const Schema = mongoose.Schema
 
-// const imageArraySchema = new Schema({
-//     id: { type: Schema.Types.ObjectId, auto: true },
-//     url: { 
-//         type: String, 
-//         required: true,
-//         unique: true
-//     }
-// });
-
 const profileSchema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -22,13 +13,14 @@ const profileSchema = new Schema({
         lowercase: true
     },
     dateOfBirth: { 
-        type: Date, 
+        type: String, 
         required: true,
         validate: {
             validator: function(date) {
+                const formattedDate = new Date(date);
                 const eighteenYearsAgo = new Date();
                 eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
-                return date >= eighteenYearsAgo;
+                return formattedDate <= eighteenYearsAgo;
             },
             message: "Date is not at least 18 years ago!"
         }

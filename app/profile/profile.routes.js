@@ -8,10 +8,10 @@ const {
     getReferralCount,
 } = require("./profile.controllers");
 
-router.get("/", getProfile);
+router.get("/:id", getProfile);
 router.post("/", createProfile);
 router.put("/", updateProfile);
 router.get("/check-username/:username", validateUsername);
-router.get("/referrals-count", getReferralCount);
+router.get("/referrals-count/:id", getReferralCount);
 
 module.exports = router

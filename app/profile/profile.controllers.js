@@ -4,11 +4,15 @@ const {
     InvalidReq,
     InvalidResp,
     FailedReq,
-    cleanUpObject
 } = require("../config");
 
 const getProfile = async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.params;
+    if (!id) {
+        return res.status(401).send({ 
+            error: "Add the user Id to the request body" 
+        });
+    }
 
     try {
         const profile = await Profile.findById(id).lean();
@@ -17,7 +21,7 @@ const getProfile = async (req, res) => {
             return res.status(404).send({ error: "Profile not found" });
         }
     
-        res.status(200).send(cleanUpObject(profile));
+        res.status(200).send(profile);
     } catch (error) {
         res.status(400).send(error);
     }
@@ -25,15 +29,30 @@ const getProfile = async (req, res) => {
 
 const createProfile = async (req, res) => {
     const payload = req.body;
+    if (!payload) {
+        return res.status(401).send({ error: "No payload sent" });
+    }
+
+    if (payload.username) {
+        const existingUsername = await Profile.
+            findOne({ 
+                _id: { $ne: id },
+                username: payload.username
+            });
+        
+        if (existingUsername) {
+            return res.status(404).send({ error: "Username already exists" });
+        }
+    }
 
     try {
         const profile = await Profile
-            .create(
-                { ...payload },
-                { lean: true }
-            );
+           .create(
+               { ...payload },
+               { lean: true }
+           );
     
-        res.status(200).send(cleanUpObject(profile));
+        res.status(200).send(profile);
     } catch (error) {
         res.status(400).send(error);
     }
@@ -50,19 +69,31 @@ const updateProfile = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
 
+    if (payload.username) {
+        const existingUsername = await Profile.
+            findOne({ 
+                _id: { $ne: id },
+                username: payload.username
+            });
+        
+        if (existingUsername) {
+            return res.status(404).send({ error: "Username already exists" });
+        }
+    }
+
     try {
         const profile = await Profile
             .findByIdAndUpdate(
                 id,
                 { ...payload },
-                { new: true, lean: true }
+                { new: true, lean: true, runValidators: true }
             );
     
         if (!profile) {
             return res.status(404).send({ error: "Profile not found" });
         }
     
-        res.status(200).send(cleanUpObject(profile));
+        res.status(200).send(profile);
     } catch (error) {
         res.status(400).send(error);
     }
@@ -88,15 +119,15 @@ const validateUsername = async (req, res) => {
 }
 
 const getReferralCount = async (req, res) => {
-    const { profileId } = req.body;
-    if (!profileId) {
+    const { id } = req.params;
+    if (!id) {
         return res.status(401).send({ error: "No value sent" });
     }
 
     try {
-        const total = await Profile.countDocuments({ referredBy: profileId });
+        const total = await Profile.countDocuments({ referredBy: id });
         
-        res.status(200).send(total);
+        res.status(200).send({count: total});
     } catch (error) {
         res.status(400).send(error);
     }
