@@ -38,11 +38,6 @@ const profileSchema = new Schema({
     city: { type: String, required: true },
     country: { type: String, required: true },
     referredBy: { type: String, required: false },
-    referralCode: { 
-        type: String, 
-        required: false,
-        unique: true 
-    },
 }, { timestamps: true })
 
 const Profile = mongoose.model("Profile", profileSchema);

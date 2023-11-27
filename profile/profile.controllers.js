@@ -86,9 +86,25 @@ const validateUsername = async (req, res) => {
     }
 }
 
+const getReferralCount = async (req, res) => {
+    const { profileId } = req.body;
+    if (!profileId) {
+        return res.status(401).send({ error: "No value sent" });
+    }
+
+    try {
+        const total = await Profile.countDocuments({ referredBy: profileId });
+        
+        res.status(200).send(total);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+}
+
 module.exports = {
     getProfile,
     createProfile,
     updateProfile,
     validateUsername,
+    getReferralCount,
 }
