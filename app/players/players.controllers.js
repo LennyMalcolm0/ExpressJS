@@ -33,8 +33,7 @@ const createPlayer = async (req, res) => {
 
     try {
         const player = await Player.create(
-            { name, club, age, goals, assists, competition },
-            { lean: true }
+            { name, club, age, goals, assists, competition }
         );
         res.status(200).send(player);
     } catch (error) {

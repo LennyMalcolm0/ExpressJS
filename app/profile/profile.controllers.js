@@ -34,23 +34,15 @@ const createProfile = async (req, res) => {
     }
 
     if (payload.username) {
-        const existingUsername = await Profile.
-            findOne({ 
-                _id: { $ne: id },
-                username: payload.username
-            });
+        const profile = await Profile.findOne({ username: payload.username });
         
-        if (existingUsername) {
+        if (profile) {
             return res.status(404).send({ error: "Username already exists" });
         }
     }
 
     try {
-        const profile = await Profile
-           .create(
-               { ...payload },
-               { lean: true }
-           );
+        const profile = await Profile.create({ ...payload });
     
         res.status(200).send(profile);
     } catch (error) {
@@ -70,30 +62,30 @@ const updateProfile = async (req, res) => {
     }
 
     if (payload.username) {
-        const existingUsername = await Profile.
+        const profile = await Profile.
             findOne({ 
                 _id: { $ne: id },
                 username: payload.username
             });
         
-        if (existingUsername) {
+        if (profile) {
             return res.status(404).send({ error: "Username already exists" });
         }
     }
 
     try {
-        const profile = await Profile
+        const updatedProfile = await Profile
             .findByIdAndUpdate(
                 id,
                 { ...payload },
                 { new: true, lean: true, runValidators: true }
             );
     
-        if (!profile) {
+        if (!updatedProfile) {
             return res.status(404).send({ error: "Profile not found" });
         }
     
-        res.status(200).send(profile);
+        res.status(200).send(updatedProfile);
     } catch (error) {
         res.status(400).send(error);
     }
