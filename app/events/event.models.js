@@ -17,7 +17,7 @@ const ticketSchema = new Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true },
-    // sold: { type: Number, required: false }
+    sold: { type: Number, required: false }
 }, { timestamps: true })
 
 const eventSchema = new Schema({
@@ -47,6 +47,7 @@ const eventSchema = new Schema({
     },
     flyerUrl: { type: String, required: true },
     otherImages: { type: [imageArraySchema], required: false },
+    published: { type: Boolean, required: false },
 }, { timestamps: true })
 
 const Event = mongoose.model("Event", eventSchema);

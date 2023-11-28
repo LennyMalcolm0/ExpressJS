@@ -12,6 +12,7 @@ const {
     createEvent,
     updateEvent,
     deleteEvent,
+    publishEvent,
 } = require("./controllers/event.controllers");
 const {
     getEventTickets,
@@ -27,6 +28,7 @@ router.delete("/categories/:id", deleteCategory);
 
 router.get("/", getEvents);
 router.get("/:id", getEvent);
+router.get("/:id/publish", publishEvent);
 router.post("/", createEvent);
 router.put("/:id", updateEvent);
 router.delete("/:id", deleteEvent);

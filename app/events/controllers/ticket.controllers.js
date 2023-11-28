@@ -70,6 +70,8 @@ const updateTicket = async (req, res) => {
     }
 
     try {
+        delete payload.sold;
+        
         const updatedTicket = await Ticket
             .findByIdAndUpdate(
                 id,

@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const getEvents = async (req, res) => {
     try {
         const events = await Event
-            .find({ startDate: { $lt: new Date() } })
+            .find({ startDate: { $lt: new Date() }, published: true })
             .populate("category organizer")
             .lean();
         res.status(200).send(events);
@@ -46,7 +46,7 @@ const createEvent = async (req, res) => {
     }
 
     try {
-        const event = await Event.create({ ...payload });
+        const event = await Event.create({ ...payload, published: false });
     
         res.status(200).send(event);
     } catch (error) {
@@ -86,7 +86,7 @@ const updateEvent = async (req, res) => {
             .findByIdAndUpdate(
                 id,
                 { ...payload },
-                { new: true, lean: true }
+                { new: true, runValidators: true, lean: true }
             );
     
         if (!updatedEvent) {
@@ -124,10 +124,36 @@ const deleteEvent = async (req, res) => {
     }
 }
 
+const publishEvent = async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(401).send({ error: "Not a valid id" });
+    }
+
+    try {
+        const publishedEvent = await Event
+            .findByIdAndUpdate(
+                id,
+                { published: true },
+                { new: true, lean: true }
+            );
+            
+        if (!publishedEvent) {
+            return res.status(404).send({ error: "Event not found" });
+        }
+    
+        res.status(200).send(publishedEvent);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+}
+
 module.exports = {
     getEvents,
     getEvent,
     createEvent,
     updateEvent,
     deleteEvent,
+    publishEvent,
 }
