@@ -1,15 +1,15 @@
-const { Ticket } = require("../event.models");
+const { Ticket, Event } = require("../event.models");
 const mongoose = require("mongoose");
 
 const getEventTickets = async (req, res) => {
-    const { id } = req.params;
+    const { eventId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
         return res.status(401).send({ error: "Event id not valid" });
     }
 
     try {
-        const tickets = await Ticket.find({ eventId: id }).lean();
+        const tickets = await Ticket.find({ eventId }).lean();
         res.status(200).send(tickets);
     } catch (error) {
         res.status(400).send(error);
@@ -34,10 +34,10 @@ const createTicket = async (req, res) => {
 
     const ticket = await Ticket.findOne({
         eventId, 
-        $or: [{ name: payload.name }, { description: payload.description }] 
+        name: payload.name
     });
     if (ticket) {
-        return res.status(401).send({ error: "Ticket name or description already exists for another ticket" });
+        return res.status(401).send({ error: "Ticket name already exists for another ticket" });
     }
 
     try {
@@ -61,12 +61,12 @@ const updateTicket = async (req, res) => {
     }
     
     const ticket = await Ticket.findOne({
-        eventId, 
         _id: { $ne: id },
-        $or: [{ name: payload.name }, { description: payload.description }] 
+        eventId, 
+        name: payload.name
     });
     if (ticket) {
-        return res.status(401).send({ error: "Ticket name or description already exists for another ticket" });
+        return res.status(401).send({ error: "Ticket name already exists for another ticket" });
     }
 
     try {

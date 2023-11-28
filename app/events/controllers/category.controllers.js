@@ -17,10 +17,15 @@ const createCategory = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
 
-    try {
-        const category = await Category.create({ ...payload });
+    const category = await Category.findOne({ name: payload.name });
+    if (category) {
+        return res.status(401).send({ error: "Category name already exists" });
+    }
 
-        res.status(200).send(category);
+    try {
+        const newCategory = await Category.create({ ...payload });
+
+        res.status(200).send(newCategory);
     } catch (error) {
         res.status(400).send(error);
     }
@@ -35,6 +40,14 @@ const updateCategory = async (req, res) => {
     }
     if (!payload) {
         return res.status(401).send({ error: "No payload sent" });
+    }
+
+    const category = await Category.findOne({ 
+        name: payload.name,
+        _id: { $ne: id },
+    });
+    if (category) {
+        return res.status(401).send({ error: "Category name already exists" });
     }
 
     try {

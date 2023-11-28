@@ -8,11 +8,11 @@ app.use(express.json());
 
 const playersRoutes = require('./app/players/players.routes');
 const profileRoutes = require('./app/profile/profile.routes');
-const eventRoutes = require('./app/events/event.routes');
+const eventsRoutes = require('./app/events/event.routes');
 
 app.use("/football", playersRoutes);
 app.use("/profile", profileRoutes);
-app.use("/event", eventRoutes);
+app.use("/events", eventsRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {

@@ -1,10 +1,10 @@
-const { Event, Ticket } = require("../event.models");
+const { Event, Ticket, Category } = require("../event.models");
 const mongoose = require("mongoose");
 
 const getEvents = async (req, res) => {
     try {
         const events = await Event
-            .find({ startDate: { $gt: new Date() } })
+            .find({ startDate: { $lt: new Date() } })
             .populate("category organizer")
             .lean();
         res.status(200).send(events);
@@ -40,7 +40,7 @@ const createEvent = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
 
-    const category = await Ticket.findById(payload.category);
+    const category = await Category.findById(payload.category);
     if (!category) {
         return res.status(401).send({ error: "Event category does not exist." });
     }
@@ -65,7 +65,7 @@ const updateEvent = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
     if (payload.category) {
-        const category = await Ticket.findById(payload.category);
+        const category = await Category.findById(payload.category);
         if (!category) {
             return res.status(401).send({ error: "Event category does not exist." });
         }
