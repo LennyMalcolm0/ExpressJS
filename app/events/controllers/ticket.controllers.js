@@ -41,7 +41,7 @@ const createTicket = async (req, res) => {
     }
 
     try {
-        const newTicket = await Ticket.create({ eventId, ...payload });
+        const newTicket = await Ticket.create({ eventId, ...payload, sold: 0 });
     
         res.status(200).send(newTicket);
     } catch (error) {
@@ -50,7 +50,7 @@ const createTicket = async (req, res) => {
 }
 
 const updateTicket = async (req, res) => {
-    const { id } = req.params;
+    const { eventId, id } = req.params;
     const payload = req.body;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {

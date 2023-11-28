@@ -5,7 +5,7 @@ const getEvents = async (req, res) => {
     try {
         const events = await Event
             .find({ startDate: { $gt: new Date() } })
-            .populate("category")
+            .populate("category organizer")
             .lean();
         res.status(200).send(events);
     } catch (error) {
@@ -23,7 +23,7 @@ const getEvent = async (req, res) => {
     try {
         const event = await Event
             .findById(id)
-            .populate("category")
+            .populate("category organizer")
             .lean();
         const tickets = await Ticket.find({ eventId: id }).lean();
         event.tickets = tickets;

@@ -1,5 +1,6 @@
 const { Profile, profileSchema } = require("./profile.models");
 const mongoose = require("mongoose");
+const { Event } = require("../events/event.models");
 const { 
     InvalidReq,
     InvalidResp,
@@ -125,10 +126,28 @@ const getReferralCount = async (req, res) => {
     }
 }
 
+const getUserEvents = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(401).send({ error: "Not a valid id" });
+    }
+
+    try {
+        const events = await Event
+            .find({ organizer: id })
+            .populate("category")
+            .lean();
+        res.status(200).send(events);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+}
+
 module.exports = {
     getProfile,
     createProfile,
     updateProfile,
     validateUsername,
     getReferralCount,
+    getUserEvents,
 }
