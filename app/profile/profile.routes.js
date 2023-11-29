@@ -11,9 +11,9 @@ const {
 
 router.get("/:id", getProfile);
 router.post("/", createProfile);
-router.put("/", updateProfile);
+router.put("/:id", updateProfile);
 router.get("/check-username/:username", validateUsername);
 router.get("/referrals-count/:id", getReferralCount);
-router.get("/events/:id", getUserEvents);
+router.get("/:id/events", getUserEvents);
 
 module.exports = router

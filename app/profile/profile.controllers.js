@@ -52,11 +52,11 @@ const createProfile = async (req, res) => {
 }
 
 const updateProfile = async (req, res) => {
-    const { id, payload } = req.body;
-    if (!id) {
-        return res.status(401).send({ 
-            error: "Add the user Id to the request body" 
-        });
+    const { id } = req.params;
+    const payload = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(401).send({ error: "Invalid profile id" });
     }
     if (!payload) {
         return res.status(401).send({ error: "No payload sent" });
@@ -113,8 +113,9 @@ const validateUsername = async (req, res) => {
 
 const getReferralCount = async (req, res) => {
     const { id } = req.params;
-    if (!id) {
-        return res.status(401).send({ error: "No value sent" });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(401).send({ error: "Invalid user id" });
     }
 
     try {
@@ -128,6 +129,7 @@ const getReferralCount = async (req, res) => {
 
 const getUserEvents = async (req, res) => {
     const { id } = req.params;
+    
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(401).send({ error: "Not a valid id" });
     }
@@ -135,7 +137,8 @@ const getUserEvents = async (req, res) => {
     try {
         const events = await Event
             .find({ organizer: id })
-            .populate("category")
+            .populate("category tickets")
+            .select("-organizer")
             .lean();
         res.status(200).send(events);
     } catch (error) {

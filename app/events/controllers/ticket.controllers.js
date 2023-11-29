@@ -42,6 +42,9 @@ const createTicket = async (req, res) => {
 
     try {
         const newTicket = await Ticket.create({ eventId, ...payload, sold: 0 });
+
+        const tickets = [ ...event.tickets, newTicket._id ];
+        await Event.findOneAndUpdate({ _id: eventId }, { tickets });
     
         res.status(200).send(newTicket);
     } catch (error) {
@@ -54,7 +57,7 @@ const updateTicket = async (req, res) => {
     const payload = req.body;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
+        return res.status(401).send({ error: "Invalid ticket id" });
     }
     if (!payload) {
         return res.status(401).send({ error: "No payload sent" });
@@ -71,7 +74,7 @@ const updateTicket = async (req, res) => {
 
     try {
         delete payload.sold;
-        
+
         const updatedTicket = await Ticket
             .findByIdAndUpdate(
                 id,
@@ -93,7 +96,7 @@ const deleteTicket = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
+        return res.status(401).send({ error: "Invalid ticket id" });
     }
 
     try {

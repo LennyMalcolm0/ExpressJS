@@ -36,7 +36,7 @@ const updateCategory = async (req, res) => {
     const payload = req.body;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
+        return res.status(401).send({ error: "Invalid category id" });
     }
     if (!payload) {
         return res.status(401).send({ error: "No payload sent" });
@@ -72,7 +72,7 @@ const deleteCategory = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
+        return res.status(401).send({ error: "Invalid category id" });
     }
 
     try {

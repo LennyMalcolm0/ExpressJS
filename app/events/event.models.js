@@ -48,6 +48,11 @@ const eventSchema = new Schema({
     flyerUrl: { type: String, required: true },
     otherImages: { type: [imageArraySchema], required: false },
     published: { type: Boolean, required: false },
+    tickets: { 
+        type: [Schema.Types.ObjectId], 
+        required: false,
+        ref: "Ticket"
+    },
 }, { timestamps: true })
 
 const Event = mongoose.model("Event", eventSchema);
