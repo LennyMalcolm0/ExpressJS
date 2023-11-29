@@ -52,6 +52,7 @@ const createTicket = async (req, res) => {
     }
 }
 
+// TODO: Update if sold === 0
 const updateTicket = async (req, res) => {
     const { eventId, id } = req.params;
     const payload = req.body;
@@ -92,6 +93,7 @@ const updateTicket = async (req, res) => {
     }
 }
 
+// TODO: Delete if sold === 0
 const deleteTicket = async (req, res) => {
     const { id } = req.params;
 

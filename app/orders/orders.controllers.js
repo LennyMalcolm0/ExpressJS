@@ -8,6 +8,14 @@ const getUserOrders = async (req, res) => {
     try {
         const orders = await Order
             .find({ profile: profileId })
+            .populate({ 
+                path: "event", 
+                select: "name flyerUrl startDate organizer",
+                populate: { 
+                    path: "organizer", 
+                    select: "firstName lastName profilePictureUrl" 
+                }
+            })
             .lean();
     
         res.status(200).send(orders);

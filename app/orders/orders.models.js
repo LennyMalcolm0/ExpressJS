@@ -17,7 +17,11 @@ const orderItems = new Schema({
 }, { timestamps: true })
 
 const ordersSchema = new Schema({
-    paymentStatus: { type: String, required: true },
+    paymentStatus: { 
+        type: String, 
+        required: true,
+        enum: ["PENDING", "COMPLETED", "FAILED"]
+    },
     totalPrice: { type: Number, required: true },
     event: { 
         type: Schema.Types.ObjectId, 
@@ -36,6 +40,15 @@ const ordersSchema = new Schema({
         required: true,
     },
 }, { timestamps: true })
+
+// Always attach `populate()` to `find()` calls.
+// ordersSchema.post("find", async function(orders) {
+//     for (const order of orders) {
+//         if (order.paymentStatus === "COMPLETED") {
+//             await order.populate("-profile");
+//         }
+//     }
+// });
 
 const Order = mongoose.model("Order", ordersSchema);
 

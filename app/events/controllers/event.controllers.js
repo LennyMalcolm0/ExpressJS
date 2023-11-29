@@ -6,7 +6,7 @@ const getEvents = async (req, res) => {
         const events = await Event
             .find({ startDate: { $lt: new Date() }, published: true })
             .populate("organizer tickets")
-            .populate({ path: 'category', select: 'name mainCategory' })
+            .populate({ path: "category", select: "name mainCategory" })
             .lean();
         res.status(200).send(events);
     } catch (error) {
@@ -129,9 +129,10 @@ const deleteEvent = async (req, res) => {
     }
     const totalTicketsSold = event.tickets.reduce((sum, ticket) => sum + ticket.sold, 0);
 
-    if (totalTicketsSold > 0) {
+    if (totalTicketsSold === 0) {
         try {
             await Event.findByIdAndDelete(id);
+            await Ticket.deleteMany({ eventId: id });
             res.status(200).send("Success");
         } catch (error) {
             res.status(400).send(error);
