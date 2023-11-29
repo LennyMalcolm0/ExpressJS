@@ -4,9 +4,18 @@ const mongoose = require("mongoose");
 const getEvents = async (req, res) => {
     try {
         const events = await Event
-            .find({ startDate: { $lt: new Date() }, published: true })
-            .populate("organizer tickets")
-            .populate({ path: "category", select: "name mainCategory" })
+            .find({ 
+                startDate: { $lt: new Date() }, 
+                published: true,
+            })
+            .populate({ path: "category", select: "name" })
+            .populate({ path: "organizer", select: "firstName lastName profilePictureUrl" })
+            .populate({ path: "tickets", select: "price quantity sold" })
+            .select("-otherImages")
+            // .populate({ 
+            //     path: "tickets", 
+            //     match: { $expr: { $ne: ["$quantity", "$sold"] } },
+            // })
             .lean();
         res.status(200).send(events);
     } catch (error) {
@@ -131,8 +140,8 @@ const deleteEvent = async (req, res) => {
 
     if (totalTicketsSold === 0) {
         try {
-            await Event.findByIdAndDelete(id);
             await Ticket.deleteMany({ eventId: id });
+            await Event.findByIdAndDelete(id);
             res.status(200).send("Success");
         } catch (error) {
             res.status(400).send(error);
