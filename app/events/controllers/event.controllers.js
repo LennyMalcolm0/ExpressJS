@@ -5,7 +5,8 @@ const getEvents = async (req, res) => {
     try {
         const events = await Event
             .find({ startDate: { $lt: new Date() }, published: true })
-            .populate("category organizer tickets")
+            .populate("organizer tickets")
+            .populate({ path: 'category', select: 'name mainCategory' })
             .lean();
         res.status(200).send(events);
     } catch (error) {

@@ -15,10 +15,12 @@ app.use(express.json());
 const playersRoutes = require('./app/players/players.routes');
 const profileRoutes = require('./app/profile/profile.routes');
 const eventsRoutes = require('./app/events/event.routes');
+const ordersRoutes = require('./app/orders/orders.routes');
 
 app.use("/football", playersRoutes);
 app.use("/profile", profileRoutes);
 app.use("/events", eventsRoutes);
+app.use("/orders", ordersRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
