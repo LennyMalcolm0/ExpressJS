@@ -18,11 +18,10 @@ const orderItems = new Schema({
 
 const ordersSchema = new Schema({
     paymentStatus: { type: String, required: true },
-    paymentReference: { type: String, required: true },
     totalPrice: { type: Number, required: true },
-    eventOrganizer: { 
+    event: { 
         type: Schema.Types.ObjectId, 
-        ref: "Profile",
+        ref: "Event",
         required: true,
         immutable: true
     },

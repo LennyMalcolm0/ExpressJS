@@ -49,7 +49,6 @@ const createEvent = async (req, res) => {
         delete payload.tickets
         const event = await Event.create({ ...payload, published: false });
 
-        // console.log(event)
         const createdTickets = await Promise.all(tickets.map(ticket => {
             return Ticket.create({ eventId: event._id, ...ticket, sold: 0 })
         }))
