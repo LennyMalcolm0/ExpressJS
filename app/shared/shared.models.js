@@ -27,13 +27,4 @@ const dynamicReferences = new Schema({
     }
 });
 
-const InvalidReq = 401;
-const InvalidResp = 404;
-const FailedReq = 400;
-
-module.exports = {
-    imageArraySchema,
-    InvalidReq,
-    InvalidResp,
-    FailedReq,
-}
+module.exports = { imageArraySchema }

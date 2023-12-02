@@ -1,13 +1,21 @@
 const { Event, Ticket, Category } = require("../event.models");
 const mongoose = require("mongoose");
+const { getQueryParameters } = require("../../shared/utils");
 
 const getEvents = async (req, res) => {
+    const { limit, skip, filterParameters } = getQueryParameters(req);
+
     try {
         const events = await Event
             .find({ 
                 startDate: { $lt: new Date() }, 
                 published: true,
+                ...filterParameters,
+                // "organizer.firstName": { $eq: "Jake" }
             })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .populate({ path: "category", select: "name" })
             .populate({ path: "organizer", select: "firstName lastName profilePictureUrl" })
             .populate({ path: "tickets", select: "price quantity sold" })
@@ -15,9 +23,12 @@ const getEvents = async (req, res) => {
             // .populate({ 
             //     path: "tickets", 
             //     match: { $expr: { $ne: ["$quantity", "$sold"] } },
-            // })
+            // })startDate_gt_2024-01-05T06:00:00.000Z,name_eq_Music Festival
             .lean();
-        res.status(200).send(events);
+
+        const hasMore = events.length === Number(limit);
+        
+        res.status(200).send({ events, hasMore });
     } catch (error) {
         res.status(400).send(error);
     }

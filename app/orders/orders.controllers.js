@@ -2,12 +2,21 @@ const { Order } = require("./orders.models");
 const { Profile } = require("../profile/profile.models");
 const { Event, Ticket } = require("../events/event.models");
 const mongoose = require("mongoose");
+const { getQueryParameters } = require("../shared/utils");
 
 const getUserOrders = async (req, res) => {
     const { profileId } = req.params;
+    const { 
+        limit, 
+        skip, 
+        filterParameters 
+    } = getQueryParameters(req);
+
     try {
         const orders = await Order
-            .find({ profile: profileId })
+            .find({ profile: profileId, ...filterParameters })
+            .skip(skip)
+            .limit(limit)
             .populate({ 
                 path: "event", 
                 select: "name flyerUrl startDate organizer",

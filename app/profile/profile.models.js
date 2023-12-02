@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { imageArraySchema } = require("../config");
+const { imageArraySchema } = require("../shared/shared.models");
 
 const Schema = mongoose.Schema
 

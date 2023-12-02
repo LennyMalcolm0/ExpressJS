@@ -1,11 +1,7 @@
 const { Profile, profileSchema } = require("./profile.models");
 const mongoose = require("mongoose");
 const { Event } = require("../events/event.models");
-const { 
-    InvalidReq,
-    InvalidResp,
-    FailedReq,
-} = require("../config");
+const { getQueryParameters } = require("../shared/utils");
 
 const getProfile = async (req, res) => {
     const { id } = req.params;
@@ -129,6 +125,11 @@ const getReferralCount = async (req, res) => {
 
 const getUserEvents = async (req, res) => {
     const { id } = req.params;
+    const { 
+        limit, 
+        skip, 
+        filterParameters 
+    } = getQueryParameters(req);
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(401).send({ error: "Not a valid id" });
@@ -136,7 +137,10 @@ const getUserEvents = async (req, res) => {
 
     try {
         const events = await Event
-            .find({ organizer: id })
+            .find({ organizer: id, ...filterParameters })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .populate("category tickets")
             .select("-organizer")
             .lean();
