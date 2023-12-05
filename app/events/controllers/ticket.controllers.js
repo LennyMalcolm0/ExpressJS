@@ -52,7 +52,6 @@ const createTicket = async (req, res) => {
     }
 }
 
-// TODO: Update if sold === 0
 const updateTicket = async (req, res) => {
     const { eventId, id } = req.params;
     const payload = req.body;
@@ -63,49 +62,60 @@ const updateTicket = async (req, res) => {
     if (!payload) {
         return res.status(401).send({ error: "No payload sent" });
     }
-    
-    const ticket = await Ticket.findOne({
-        _id: { $ne: id },
-        eventId, 
-        name: payload.name
-    });
-    if (ticket) {
-        return res.status(401).send({ error: "Ticket name already exists for another ticket" });
-    }
 
-    try {
-        delete payload.sold;
+    const ticket = await Ticket.findById(id);
 
-        const updatedTicket = await Ticket
-            .findByIdAndUpdate(
-                id,
-                { ...payload },
-                { new: true, lean: true }
-            );
-    
-        if (!updatedTicket) {
-            return res.status(404).send({ error: "Ticket not found" });
+    if (ticket.sold === 0) {
+        const existingName = Boolean(await Ticket.findOne({
+            _id: { $ne: id },
+            eventId, 
+            name: payload.name
+        }));
+        if (existingName) {
+            return res.status(401).send({ error: "Ticket name already exists for another ticket" });
         }
+
+        try {
+            delete payload.sold;
     
-        res.status(200).send(updatedTicket);
-    } catch (error) {
-        res.status(400).send(error);
+            const updatedTicket = await Ticket
+                .findByIdAndUpdate(
+                    id,
+                    { ...payload },
+                    { new: true, lean: true }
+                );
+        
+            if (!updatedTicket) {
+                return res.status(404).send({ error: "Ticket not found" });
+            }
+        
+            res.status(200).send(updatedTicket);
+        } catch (error) {
+            res.status(400).send(error);
+        }
+    } else {
+        return res.status(401).send({ error: "FAILED! Already sold a ticket for this category" });
     }
 }
 
-// TODO: Delete if sold === 0
 const deleteTicket = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(401).send({ error: "Invalid ticket id" });
     }
+    
+    const ticket = await Ticket.findById(id);
 
-    try {
-        await Ticket.findByIdAndDelete(id);
-        res.status(200).send("Success");
-    } catch (error) {
-        res.status(400).send(error);
+    if (ticket.sold === 0) {
+        try {
+            await Ticket.findByIdAndDelete(id);
+            res.status(200).send("Success");
+        } catch (error) {
+            res.status(400).send(error);
+        }
+    } else {
+        return res.status(401).send({ error: "FAILED! Already sold a ticket for this category" });
     }
 }
 

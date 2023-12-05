@@ -11,7 +11,7 @@ const {
 
 router.get("/:id", getProfile);
 router.post("/", createProfile);
-router.put("/:id", updateProfile);
+router.patch("/:id", updateProfile);
 router.get("/check-username/:username", validateUsername);
 router.get("/referrals-count/:id", getReferralCount);
 router.get("/:id/events", getUserEvents);

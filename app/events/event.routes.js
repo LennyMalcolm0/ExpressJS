@@ -23,19 +23,19 @@ const {
 
 router.get("/categories", getCategories);
 router.post("/categories", createCategory);
-router.put("/categories/:id", updateCategory);
+router.patch("/categories/:id", updateCategory);
 router.delete("/categories/:id", deleteCategory);
 
 router.get("/", getEvents);
 router.get("/:id", getEvent);
 router.get("/:id/publish", publishEvent);
 router.post("/", createEvent);
-router.put("/:id", updateEvent);
+router.patch("/:id", updateEvent);
 router.delete("/:id", deleteEvent);
 
 router.get("/:eventId/tickets", getEventTickets);
 router.post("/:eventId/tickets", createTicket);
-router.put("/:eventId/tickets/:id", updateTicket);
+router.patch("/:eventId/tickets/:id", updateTicket);
 router.delete("/tickets/:id", deleteTicket);
 
 module.exports = router
