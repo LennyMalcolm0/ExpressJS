@@ -9,7 +9,7 @@ const {
     getUserEvents,
 } = require("./profile.controllers");
 
-router.get("/:id", getProfile);
+router.get("/:userId", getProfile);
 router.post("/", createProfile);
 router.patch("/:id", updateProfile);
 router.get("/check-username/:username", validateUsername);

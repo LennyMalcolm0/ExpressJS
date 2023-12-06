@@ -143,7 +143,7 @@ const deleteEvent = async (req, res) => {
         return res.status(401).send({ error: "Not a valid id" });
     }
 
-    const event = await Event.findById(id);
+    const event = await Event.findById(id).select("tickets").populate("tickets");
     if (!event) {
         return res.status(404).send({ error: "Event not found" });
     }

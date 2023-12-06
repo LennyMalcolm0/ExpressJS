@@ -4,6 +4,7 @@ const { imageArraySchema } = require("../shared/shared.models");
 const Schema = mongoose.Schema
 
 const profileSchema = new Schema({
+    userId: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     username: { 
@@ -25,7 +26,11 @@ const profileSchema = new Schema({
             message: "Date is not at least 18 years ago!"
         }
     },
-    gender: { type: String, required: true },
+    gender: { 
+        type: String, 
+        required: true,
+        enum: ["Male", "Female"]
+    },
     bio: { type: String, required: true },
     profilePictureUrl: { type: String, required: true },
     photos: { type: [imageArraySchema], required: true },

@@ -25,6 +25,13 @@ const getUserOrders = async (req, res) => {
                     select: "firstName lastName profilePictureUrl" 
                 }
             })
+            .populate({ 
+                path: "orderItems", 
+                populate: { 
+                    path: "ticket", 
+                    select: "name",
+                }
+            })
             .lean();
     
         res.status(200).send(orders);
@@ -90,6 +97,28 @@ const createOrder = async (req, res) => {
         orderItems,
     }
 
+    const completeTicketsPurchase = async () => {
+        try {
+            const completedOrder = await Order
+                .findByIdAndUpdate(
+                    newOrder._id, 
+                    { paymentStatus: "COMPLETED" },
+                    { new: true, lean: true }
+                );
+    
+            res.status(200).send(completedOrder);
+        } catch (error) {
+            await Promise.all(payload.map(ticket => {
+                return Ticket.findByIdAndUpdate(
+                    ticket._id,
+                    { $inc: { sold: -ticket.quantity } }
+                )
+            }))
+            
+            res.status(400).send(error);
+        }
+    };
+
     try {
         const newOrder = await Order.create({ ...requestBody });
 
@@ -101,14 +130,7 @@ const createOrder = async (req, res) => {
                 )
             }))
 
-            const completedOrder = await Order
-                .findByIdAndUpdate(
-                    newOrder._id, 
-                    { paymentStatus: "COMPLETED" },
-                    { new: true, lean: true }
-                );
-    
-            res.status(200).send(completedOrder);
+            await completeTicketsPurchase();
         } catch {
             res.status(400).send("Purchase unsuccessful");
         }

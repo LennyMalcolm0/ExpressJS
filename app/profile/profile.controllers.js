@@ -4,15 +4,15 @@ const { Event } = require("../events/event.models");
 const { getQueryParameters } = require("../shared/utils");
 
 const getProfile = async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
+    const { userId } = req.params;
+    if (!userId) {
         return res.status(401).send({ 
             error: "Add the user Id to the request body" 
         });
     }
 
     try {
-        const profile = await Profile.findById(id).lean();
+        const profile = await Profile.findOne({ userId });
     
         if (!profile) {
             return res.status(404).send({ error: "Profile not found" });
