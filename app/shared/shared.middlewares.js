@@ -29,10 +29,23 @@ const validateUser = async (req, res, next) => {
     }
 }
 
+function schemaValidator(schema) {
+    return (req, res, next) => {
+        const { error, value } = schema.validate(req.body);
+        if (error) {
+            return res.status(400).send({ error: error.details[0].message });
+        } else {
+            req.body = value;
+            next();
+        }
+    };
+}
+
 const firebaseAdmin = admin;
 
 module.exports = {
+    firebaseAdmin,
     sanitizeRequestData,
     validateUser,
-    firebaseAdmin,
+    schemaValidator,
 }

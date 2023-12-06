@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const {
     getProfile,
     createProfile,
@@ -8,12 +7,30 @@ const {
     getReferralCount,
     getUserEvents,
 } = require("./profile.controllers");
+const { 
+    sanitizeRequestData, 
+    validateUser,
+    schemaValidator,
+} = require("../shared/shared.middlewares");
+const { createProfileSchema, updateProfileSchema } = require("./profile.validators");
 
-router.get("/:userId", getProfile);
-router.post("/", createProfile);
-router.patch("/:id", updateProfile);
-router.get("/check-username/:username", validateUsername);
-router.get("/referrals-count/:id", getReferralCount);
-router.get("/:id/events", getUserEvents);
+const router = express.Router();
+
+router.get("/", validateUser, getProfile);
+router.post("/", 
+    sanitizeRequestData, 
+    validateUser, 
+    schemaValidator(createProfileSchema), 
+    createProfile
+);
+router.patch("/", 
+    sanitizeRequestData, 
+    validateUser, 
+    schemaValidator(updateProfileSchema), 
+    updateProfile
+);
+router.get("/check-username/:username", validateUser, validateUsername);
+router.get("/referrals-count", validateUser, getReferralCount);
+router.get("/events", validateUser, getUserEvents);
 
 module.exports = router
