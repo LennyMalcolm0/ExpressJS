@@ -106,6 +106,9 @@ const deleteTicket = async (req, res) => {
     }
     
     const ticket = await Ticket.findById(id);
+    if (!ticket) {
+        return res.status(404).send({ error: "Ticket not found" });
+    }
 
     if (ticket.sold === 0) {
         try {

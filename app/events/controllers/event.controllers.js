@@ -1,4 +1,5 @@
 const { Event, Ticket, Category } = require("../event.models");
+const { Profile } = require("../../profile/profile.models")
 const mongoose = require("mongoose");
 const { getQueryParameters } = require("../../shared/utils");
 
@@ -44,8 +45,13 @@ const getEvent = async (req, res) => {
     try {
         const event = await Event
             .findById(id)
-            .populate("category organizer tickets")
+            .populate("organizer tickets")
+            .populate({ path: "category", select: "name" })
             .lean();
+            
+        if (!event) {
+            return res.status(404).send({ error: "Event not found" });
+        }
         
         res.status(200).send(event);
     } catch (error) {
@@ -54,20 +60,28 @@ const getEvent = async (req, res) => {
 }
 
 const createEvent = async (req, res) => {
+    const userId = req.currentUser.uid;
     const payload = req.body;
-    if (!payload) {
-        return res.status(401).send({ error: "No payload sent" });
-    }
 
     const category = await Category.findById(payload.category);
     if (!category) {
         return res.status(401).send({ error: "Event category does not exist." });
     }
 
+    const profile = await Profile.findOne({ userId }).lean();
+    if (!profile) {
+        return res.status(404).send({ error: "Couldn't extract your profile" });
+    }
+
     try {
         const tickets = payload.tickets;
-        delete payload.tickets
-        const event = await Event.create({ ...payload, published: false });
+        delete payload.tickets;
+
+        const event = await Event.create({ 
+            ...payload, 
+            organizer: profile._id, 
+            published: false 
+        });
 
         const createdTickets = await Promise.all(tickets.map(ticket => {
             return Ticket.create({ eventId: event._id, ...ticket, sold: 0 })
@@ -136,6 +150,7 @@ const updateEvent = async (req, res) => {
     }
 }
 
+// TODO: Segment tickets and events delete logic
 const deleteEvent = async (req, res) => {
     const { id } = req.params;
 

@@ -5,7 +5,16 @@ const createProfileSchema = Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
     username: Joi.string().regex(/^[a-zA-Z0-9_]+$/).lowercase().required(),
-    dateOfBirth: Joi.date().greater(new Date).required(),
+    dateOfBirth: Joi.string().custom((value, helpers) => {
+        const formattedDate = new Date(value);
+        const eighteenYearsAgo = new Date();
+        eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+        if (formattedDate <= eighteenYearsAgo) {
+            return value;
+        } else {
+            return helpers.message({ custom: 'Date is not at least 18 years ago!' });
+        }
+    }).required(),
     gender: Joi.string().valid('Male', 'Female').required(),  
     bio: Joi.string().optional(),
     profilePictureUrl: Joi.string().required(),
@@ -20,7 +29,16 @@ const updateProfileSchema = Joi.object({
     firstName: Joi.string().optional(),
     lastName: Joi.string().optional(),
     username: Joi.string().regex(/^[a-zA-Z0-9_]+$/).lowercase().optional(),
-    dateOfBirth: Joi.date().greater(new Date).optional(),
+    dateOfBirth: Joi.string().custom((value, helpers) => {
+        const formattedDate = new Date(value);
+        const eighteenYearsAgo = new Date();
+        eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+        if (formattedDate <= eighteenYearsAgo) {
+            return value;
+        } else {
+            return helpers.message({ custom: 'Date is not at least 18 years ago!' });
+        }
+    }).optional(),
     gender: Joi.string().valid('Male', 'Female').optional(),  
     bio: Joi.string().optional(),
     profilePictureUrl: Joi.string().optional(),
@@ -31,7 +49,4 @@ const updateProfileSchema = Joi.object({
     referredBy: Joi.string().optional(),
 });
 
-module.exports = {
-    createProfileSchema,
-    updateProfileSchema,
-}
+module.exports = { createProfileSchema, updateProfileSchema }
