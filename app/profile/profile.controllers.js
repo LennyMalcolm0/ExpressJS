@@ -4,11 +4,9 @@ const { Event } = require("../events/event.models");
 const { getQueryParameters } = require("../shared/utils");
 
 const getProfile = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.currentUser.uid;
     if (!userId) {
-        return res.status(401).send({ 
-            error: "Add the user Id to the request body" 
-        });
+        return res.status(401).send({ error: "User Id not found" });
     }
 
     try {
@@ -25,11 +23,9 @@ const getProfile = async (req, res) => {
 }
 
 const createProfile = async (req, res) => {
+    const userId = req.currentUser.uid;
     const payload = req.body;
-    if (!payload) {
-        return res.status(401).send({ error: "No payload sent" });
-    }
-
+    
     if (payload.username) {
         const profile = await Profile.findOne({ username: payload.username });
         
@@ -39,7 +35,7 @@ const createProfile = async (req, res) => {
     }
 
     try {
-        const profile = await Profile.create({ ...payload });
+        const profile = await Profile.create({ userId, ...payload });
     
         res.status(200).send(profile);
     } catch (error) {
@@ -48,12 +44,9 @@ const createProfile = async (req, res) => {
 }
 
 const updateProfile = async (req, res) => {
-    const { id } = req.params;
+    const userId = req.currentUser.uid;
     const payload = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Invalid profile id" });
-    }
+    
     if (!payload) {
         return res.status(401).send({ error: "No payload sent" });
     }
@@ -61,7 +54,7 @@ const updateProfile = async (req, res) => {
     if (payload.username) {
         const profile = await Profile.
             findOne({ 
-                _id: { $ne: id },
+                userId: { $ne: userId },
                 username: payload.username
             });
         
@@ -72,8 +65,8 @@ const updateProfile = async (req, res) => {
 
     try {
         const updatedProfile = await Profile
-            .findByIdAndUpdate(
-                id,
+            .findOneAndUpdate(
+                { userId },
                 { ...payload },
                 { new: true, lean: true, runValidators: true }
             );
@@ -108,40 +101,38 @@ const validateUsername = async (req, res) => {
 }
 
 const getReferralCount = async (req, res) => {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Invalid user id" });
-    }
+    const userId = req.currentUser.uid;
 
     try {
-        const total = await Profile.countDocuments({ referredBy: id });
+        const total = await Profile.countDocuments({ referredBy: userId });
         
-        res.status(200).send({count: total});
+        res.status(200).send({ count: total });
     } catch (error) {
         res.status(400).send(error);
     }
 }
 
 const getUserEvents = async (req, res) => {
-    const { id } = req.params;
+    const userId = req.currentUser.uid;
     const { 
         limit, 
         skip, 
         filterParameters 
     } = getQueryParameters(req);
     
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(401).send({ error: "Not a valid id" });
+    const profile = await Profile.findOne({ userId }).lean();
+    if (!profile) {
+        return res.status(404).send({ error: "Couldn't extract your profile" });
     }
 
     try {
         const events = await Event
-            .find({ organizer: id, ...filterParameters })
+            .find({ organizer: profile._id, ...filterParameters })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
-            .populate("category tickets")
+            .populate({ path: "category", select: "name" })
+            .populate({ path: "tickets", select: "price quantity sold" })
             .select("-organizer")
             .lean();
         res.status(200).send(events);

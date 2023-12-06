@@ -2,7 +2,6 @@ const Joi = require('joi');
 const { imageArraySchema } = require("../shared/shared.validators");
 
 const createProfileSchema = Joi.object({
-    userId: Joi.string().required(),
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
     username: Joi.string().regex(/^[a-zA-Z0-9_]+$/).lowercase().required(),
@@ -18,7 +17,6 @@ const createProfileSchema = Joi.object({
 });
 
 const updateProfileSchema = Joi.object({
-    userId: Joi.string().optional(),
     firstName: Joi.string().optional(),
     lastName: Joi.string().optional(),
     username: Joi.string().regex(/^[a-zA-Z0-9_]+$/).lowercase().optional(),
