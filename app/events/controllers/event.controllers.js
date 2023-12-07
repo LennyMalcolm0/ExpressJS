@@ -116,7 +116,7 @@ const updateEvent = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
     if (payload.category) {
-        const category = await Category.findById(payload.category);
+        const category = await Category.findById(payload.category).select("_id");
         if (!category) {
             return res.status(401).send({ error: "Event category does not exist." });
         }

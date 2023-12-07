@@ -27,16 +27,20 @@ const createTicket = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
     
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(eventId).select("_id");
     if (!event) {
         return res.status(401).send({ error: "Event does not exist" });
     }
 
-    const ticket = await Ticket.findOne({
-        eventId, 
-        name: payload.name
-    });
-    if (ticket) {
+    const existingTicketName = Boolean(await Ticket
+        .findOne({
+            _id: { $ne: id },
+            eventId, 
+            name: payload.name
+        })
+        .select("_id")
+    )
+    if (existingTicketName) {
         return res.status(401).send({ error: "Ticket name already exists for another ticket" });
     }
 
@@ -63,15 +67,18 @@ const updateTicket = async (req, res) => {
         return res.status(401).send({ error: "No payload sent" });
     }
 
-    const ticket = await Ticket.findById(id);
+    const ticket = await Ticket.findById(id).select("sold");
 
     if (ticket.sold === 0) {
-        const existingName = Boolean(await Ticket.findOne({
-            _id: { $ne: id },
-            eventId, 
-            name: payload.name
-        }));
-        if (existingName) {
+        const existingTicketName = Boolean(await Ticket
+            .findOne({
+                _id: { $ne: id },
+                eventId, 
+                name: payload.name
+            })
+            .select("_id")
+        )
+        if (existingTicketName) {
             return res.status(401).send({ error: "Ticket name already exists for another ticket" });
         }
 
@@ -105,7 +112,7 @@ const deleteTicket = async (req, res) => {
         return res.status(401).send({ error: "Invalid ticket id" });
     }
     
-    const ticket = await Ticket.findById(id);
+    const ticket = await Ticket.findById(id).select("sold");
     if (!ticket) {
         return res.status(404).send({ error: "Ticket not found" });
     }

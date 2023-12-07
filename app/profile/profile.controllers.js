@@ -120,7 +120,7 @@ const getUserEvents = async (req, res) => {
         filterParameters 
     } = getQueryParameters(req);
     
-    const profile = await Profile.findOne({ userId }).lean();
+    const profile = await Profile.findOne({ userId }).select("_id");
     if (!profile) {
         return res.status(404).send({ error: "Couldn't extract your profile" });
     }
