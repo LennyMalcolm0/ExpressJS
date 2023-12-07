@@ -135,7 +135,10 @@ const getUserEvents = async (req, res) => {
             .populate({ path: "tickets", select: "price quantity sold" })
             .select("-organizer")
             .lean();
-        res.status(200).send(events);
+
+        const hasMore = events.length === Number(limit);
+        
+        res.status(200).send({ events, hasMore });
     } catch (error) {
         res.status(400).send(error);
     }

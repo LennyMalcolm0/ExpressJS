@@ -5,16 +5,21 @@ const mongoose = require("mongoose");
 const { getQueryParameters } = require("../shared/utils");
 
 const getUserOrders = async (req, res) => {
-    const { profileId } = req.params;
+    const userId = req.currentUser.uid;
     const { 
         limit, 
         skip, 
         filterParameters 
     } = getQueryParameters(req);
+    
+    const profile = await Profile.findOne({ userId }).select("_id");
+    if (!profile) {
+        return res.status(404).send({ error: "Couldn't extract your profile" });
+    }
 
     try {
         const orders = await Order
-            .find({ profile: profileId, ...filterParameters })
+            .find({ profile: profile._id, ...filterParameters })
             .skip(skip)
             .limit(limit)
             .populate({ 
@@ -49,12 +54,8 @@ const createOrder = async (req, res) => {
         return res.status(401).send({ error: "Invalid payload" });
     }
 
-    const invalidEventId = !mongoose.Types.ObjectId.isValid(eventId);
-    const invalidProfileId = !mongoose.Types.ObjectId.isValid(profileId);
-    if (invalidEventId || invalidProfileId) {
-        return res.status(401).send({ 
-            error: `Invalid ${invalidEventId ? "event" : "profile"} id` 
-        });
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+        return res.status(401).send({ error: `Invalid event id` });
     }
 
     const event = await Event.findById(eventId).select("name");
@@ -98,7 +99,7 @@ const createOrder = async (req, res) => {
         orderItems,
     }
 
-    const completeTicketsPurchase = async () => {
+    const completeTicketsPurchase = async (newOrder) => {
         try {
             const completedOrder = await Order
                 .findByIdAndUpdate(
@@ -131,7 +132,7 @@ const createOrder = async (req, res) => {
                 )
             }))
 
-            await completeTicketsPurchase();
+            await completeTicketsPurchase(newOrder);
         } catch {
             res.status(400).send("Purchase unsuccessful");
         }

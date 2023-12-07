@@ -15,9 +15,6 @@ app.use(helmet());
 // parse json request body
 app.use(express.json());
 
-// parse urlencoded request body
-app.use(express.urlencoded({ extended: true }));
-
 // sanitize request data
 app.use(mongoSanitize());
 

@@ -7,8 +7,8 @@ admin.initializeApp({
 });
 
 const sanitizeRequestData = (req, res, next) => {
-    const sanitizedInput = xss(req.body.input);
-    req.body = sanitizedInput;
+    // const sanitizedInput = xss(req.body);
+    // console.log(sanitizedInput)
     next();
 }
 
@@ -19,7 +19,6 @@ const validateUser = async (req, res, next) => {
         try {
             const decodedToken = await admin.auth().verifyIdToken(idToken);
             req.currentUser = decodedToken;
-            console.log(decodedToken)
             next();
         } catch (error) {
             res.status(401).send('Unauthorized');
