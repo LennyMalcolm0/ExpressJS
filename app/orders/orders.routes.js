@@ -1,11 +1,20 @@
 const express = require("express");
-const router = express.Router();
 const {
     getUserOrders,
     createOrder,
 } = require("./orders.controllers");
+const { 
+    sanitizeRequestData, 
+    validateUser,
+} = require("../shared/shared.middlewares");
 
-router.get("/:profileId", getUserOrders);
-router.post("/:eventId/purchase/:profileId", createOrder);
+const router = express.Router();
+
+router.get("/me", validateUser, getUserOrders);
+router.post("/:eventId/purchase", 
+    sanitizeRequestData, 
+    validateUser,
+    createOrder
+);
 
 module.exports = router

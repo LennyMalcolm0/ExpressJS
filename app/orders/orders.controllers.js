@@ -41,11 +41,12 @@ const getUserOrders = async (req, res) => {
 }
 
 const createOrder = async (req, res) => {
-    const { eventId, profileId } = req.params;
+    const userId = req.currentUser.uid;
+    const { eventId } = req.params;
     const { payload } = req.body;
 
-    if (!payload) {
-        return res.status(401).send({ error: "No payload sent" });
+    if (!payload[0]._id || !payload[0].quantity) {
+        return res.status(401).send({ error: "Invalid payload" });
     }
 
     const invalidEventId = !mongoose.Types.ObjectId.isValid(eventId);
@@ -56,12 +57,12 @@ const createOrder = async (req, res) => {
         });
     }
 
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(eventId).select("name");
     if (!event) {
         return res.status(401).send({ error: "Event not found" });
     }
 
-    const profile = await Profile.findById(profileId);
+    const profile = await Profile.findOne({ userId }).select("_id");
     if (!profile) {
         return res.status(401).send({ error: "Profile not found" });
     }
@@ -93,7 +94,7 @@ const createOrder = async (req, res) => {
         paymentStatus: "PENDING",
         totalPrice,
         event: eventId,
-        profile: profileId,
+        profile: profile._id,
         orderItems,
     }
 
@@ -139,7 +140,4 @@ const createOrder = async (req, res) => {
     }
 }
 
-module.exports = {
-    getUserOrders,
-    createOrder,
-}
+module.exports = { getUserOrders, createOrder }
