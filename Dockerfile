@@ -1,14 +1,11 @@
-FROM node:20.9.0
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY . .
 
 RUN npm install
 
-COPY . .
-
-ENV PORT=8080
 EXPOSE 8080
 
-CMD [ "npm", "start" ]
+CMD [ "node", "index.js" ]

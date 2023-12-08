@@ -5,7 +5,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
 const mongoose = require("mongoose");
 const cors = require('cors');
-const Routes = require("./app/routes");
+const Routes = require("./api/routes");
 
 const app = express();
 
