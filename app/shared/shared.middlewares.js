@@ -1,10 +1,5 @@
 const xss = require('xss');
-const admin = require("firebase-admin");
-const serviceAccount = require("../../serviceAccountKey.json");
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
+const admin = require("../lib/firebase");
 
 const sanitizeRequestData = (req, res, next) => {
     // const sanitizedInput = xss(req.body);
@@ -33,7 +28,7 @@ function schemaValidator(schema) {
         const { error, value } = schema.validate(req.body, {
             abortEarly: false,
         });
-        
+
         if (error) {
             return res.status(400).send({ error: error.details[0].message });
         } else {
@@ -43,10 +38,7 @@ function schemaValidator(schema) {
     };
 }
 
-const firebaseAdmin = admin;
-
 module.exports = {
-    firebaseAdmin,
     sanitizeRequestData,
     validateUser,
     schemaValidator,
