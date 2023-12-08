@@ -1,7 +1,8 @@
-const { Profile, profileSchema } = require("./profile.models");
+const { Profile } = require("./profile.models");
 const mongoose = require("mongoose");
 const { Event } = require("../events/event.models");
 const { getQueryParameters } = require("../shared/utils");
+const { client } = require("../lib/redis");
 
 const getProfile = async (req, res) => {
     const userId = req.currentUser.uid;
@@ -10,13 +11,24 @@ const getProfile = async (req, res) => {
     }
 
     try {
-        const profile = await Profile.findOne({ userId });
-    
-        if (!profile) {
-            return res.status(404).send({ error: "Profile not found" });
+        const redisProfile = await client.get(`profiles:${userId}`);
+
+        if (redisProfile) {
+            const profile = JSON.parse(redisProfile);
+            res.status(200).send(profile);
+        } else {
+            const profile = await Profile.findOne({ userId }).lean();
+        
+            if (!profile) {
+                return res.status(404).send({ error: "Profile not found" });
+            }
+            
+            const profileString = JSON.stringify(profile);
+
+            client.set(`profiles:${userId}`, profileString);
+            
+            res.status(200).send(profile);
         }
-    
-        res.status(200).send(profile);
     } catch (error) {
         res.status(400).send(error);
     }
