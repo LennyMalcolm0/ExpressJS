@@ -27,6 +27,14 @@ app.use(cors());
 // }));   
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.status(200).send({
+        "name": "Standard",
+        "quantity": 55,
+        "price": 450,
+    });
+})
+
 app.use("/profile", Routes.profileRoutes);
 app.use("/events", Routes.eventsRoutes);
 app.use("/orders", Routes.ordersRoutes);
