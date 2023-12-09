@@ -16,21 +16,21 @@ const { createProfileSchema, updateProfileSchema } = require("./profile.validato
 
 const router = express.Router();
 
-router.get("/", validateUser, getProfile);
+router.all("*", validateUser);
+
+router.get("/", getProfile);
 router.post("/", 
     sanitizeRequestData, 
-    validateUser, 
     schemaValidator(createProfileSchema), 
     createProfile
 );
 router.patch("/", 
     sanitizeRequestData, 
-    validateUser, 
     schemaValidator(updateProfileSchema), 
     updateProfile
 );
-router.get("/check-username/:username", validateUser, validateUsername);
-router.get("/referrals-count", validateUser, getReferralCount);
-router.get("/events", validateUser, getUserEvents);
+router.get("/check-username/:username", validateUsername);
+router.get("/referrals-count", getReferralCount);
+router.get("/events", getUserEvents);
 
 module.exports = router
