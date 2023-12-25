@@ -25,7 +25,6 @@ app.use(cors());
 // app.use(cors({
 // origin: ['http://localhost:5173']
 // }));   
-app.use(express.json());
 
 app.get("/", (req, res) => {
     res.status(200).send({
